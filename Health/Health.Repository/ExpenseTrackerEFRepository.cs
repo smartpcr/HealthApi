@@ -50,7 +50,6 @@ namespace Health.Repository
         {
             // if the expense group exists, we return the expenses for that group.
             // if it doesn't exist, we return null, so we can throw a not found exception
-
             var correctGroup = _ctx.ExpenseGroups.FirstOrDefault(eg => eg.Id == expenseGroupId);
             if (correctGroup != null)
             {
@@ -60,8 +59,6 @@ namespace Health.Repository
             {
                 return null;
             }
-
-
         }
 
 

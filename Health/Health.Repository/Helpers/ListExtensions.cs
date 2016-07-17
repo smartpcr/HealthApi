@@ -10,7 +10,7 @@ namespace Health.Repository.Helpers
 
     public static class ListExtensions
     {
-        public static void ReoveRange<T>(this List<T> source, IEnumerable<T> rangeToRemove)
+        public static void RemoveRange<T>(this List<T> source, IEnumerable<T> rangeToRemove)
         {
             if (rangeToRemove == null || !rangeToRemove.Any())
                 return;

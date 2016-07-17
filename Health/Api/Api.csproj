@@ -124,6 +124,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="App_Data\tablesanddatascript.sql" />
     <Content Include="Global.asax" />
     <Content Include="Web.config" />
   </ItemGroup>

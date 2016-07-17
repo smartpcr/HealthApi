@@ -10,6 +10,7 @@
 namespace Api.Controllers
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Net;
     using System.Web;
@@ -40,11 +41,21 @@ namespace Api.Controllers
         #endregion
 
         [Route("api/expensegroups", Name = "ExpenseGroupsList")]
-        public IHttpActionResult Get(string sort = "id", string status = null, string userId = null,
+        public IHttpActionResult Get(string fields = null, string sort = "id", string status = null, string userId = null,
              int page = 1, int pageSize = maxPageSize)
         {
             try
             {
+                bool includeExpenses = false;
+                List<string> lstOfFields = new List<string>();
+                // we should include expenses when the fields-string contains "expenses" or 
+                // "expenses.id", ...
+                if (fields != null)
+                {
+                    lstOfFields = fields.ToLower().Split(',').ToList();
+                    includeExpenses = lstOfFields.Any(f => f.Contains("expenses"));
+                }
+
                 int statusId = -1;
                 if (status != null)
                 {
@@ -63,10 +74,16 @@ namespace Api.Controllers
                             break;
                     }
                 }
-
-
-                // get expensegroups from repository
-                var expenseGroups = _repository.GetExpenseGroups()
+                IQueryable<ExpenseGroup> expenseGroups = null;
+                if (includeExpenses)
+                {
+                    expenseGroups = _repository.GetExpenseGroupsWithExpenses();
+                }
+                else
+                {
+                    expenseGroups = _repository.GetExpenseGroups();
+                }
+                expenseGroups = expenseGroups
                     .ApplySort(sort)
                     .Where(eg => (statusId == -1 || eg.ExpenseGroupStatusId == statusId))
                     .Where(eg => (userId == null || eg.UserId == userId));
@@ -124,7 +141,7 @@ namespace Api.Controllers
                     .Skip(pageSize * (page - 1))
                     .Take(pageSize)
                     .ToList()
-                    .Select(eg => eg.ToDto()));
+                    .Select(eg => eg.ToDto().Expand(lstOfFields)));
 
             }
             catch (Exception)
@@ -134,15 +151,32 @@ namespace Api.Controllers
         }
 
 
-        public IHttpActionResult Get(int id)
+        public IHttpActionResult Get(int id, string fields = null)
         {
             try
             {
-                var expenseGroup = _repository.GetExpenseGroup(id);
+                bool includeExpenses = false;
+                List<string> lstOfFields = new List<string>();
+                // we should include expenses when the fields-string contains "expenses"
+                if (fields != null)
+                {
+                    lstOfFields = fields.ToLower().Split(',').ToList();
+                    includeExpenses = lstOfFields.Any(f => f.Contains("expenses"));
+                }
+
+                ExpenseGroup expenseGroup;
+                if (includeExpenses)
+                {
+                    expenseGroup = _repository.GetExpenseGroupWithExpenses(id);
+                }
+                else
+                {
+                    expenseGroup = _repository.GetExpenseGroup(id);
+                }
 
                 if (expenseGroup != null)
                 {
-                    return Ok(expenseGroup.ToDto());
+                    return Ok(expenseGroup.ToDto().Expand(lstOfFields));
                 }
                 else
                 {
