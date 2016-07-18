@@ -40,6 +40,9 @@ namespace Api
             json.SerializerSettings.Formatting = Formatting.Indented;
             json.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
 
+            // config caching: default in-memory store 
+            config.MessageHandlers.Add(new CacheCow.Server.CachingHandler(config));
+
             return config;
         }
     }

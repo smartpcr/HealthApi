@@ -107,8 +107,8 @@ namespace Api.Controllers
             }
         }
 
-        [Route("expensegroups/{expenseGroupId}/expenses/{id}")]
-        [Route("expenses/{id}")]
+        [VersionedRoute("expensegroups/{expenseGroupId}/expenses/{id}", 1)]
+        [VersionedRoute("expenses/{id}",1)]
         public IHttpActionResult Get(int id, int? expenseGroupId = null, string fields = null)
         {
             try
